@@ -24,7 +24,7 @@ Diagrama com o fluxo completo de login com Spring Security e o ciclo de requisi�
 
 Entidades e relacionamentos do sistema.
 
-![Modelo do banco de dados](docs/Modelo do Db.drawio (2))
+![Modelo do banco de dados](docs/Modelo do Db.drawio(2))
 
 **Entidades:**
 - `User` — usuário da plataforma
