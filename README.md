@@ -18,13 +18,13 @@ Aplicação de chat em tempo real desenvolvida com **Java Spring Boot** e **WebS
 
 Diagrama com o fluxo completo de login com Spring Security e o ciclo de requisições autenticadas via JWT.
 
-![Fluxo de autenticação](docs/chatweb_drawio.png)
+![Fluxo de autenticação](docs/chatweb.drawio (1))
 
 ### Modelo do Banco de Dados
 
 Entidades e relacionamentos do sistema.
 
-![Modelo do banco de dados](docs/Modelo_do_Db_drawio.png)
+![Modelo do banco de dados](docs/Modelo do Db.drawio (2))
 
 **Entidades:**
 - `User` — usuário da plataforma
