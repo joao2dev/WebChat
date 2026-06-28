@@ -42,15 +42,26 @@ class UserServiceTest {
                 RuntimeException.class,
                 () -> { userService.createUser(joao); }
         );
-        assertEquals("usuario ja esta cadastrado", thrown.getMessage());
+        assertEquals("usuario ja foi cadastrado", thrown.getMessage());
     }
     @Test
-    void deveMostraroAsAlteracoesQuandoExecutadoComSucesso(){
+    void deveRetornarOkQuandoUsuarioForEditadoComSucesso(){
        when(userRepository.findById(joao.getId())).thenReturn(Optional.of(joao));
        when(userRepository.findByUsername(joao2.getUsername())).thenReturn(Optional.empty());
-       when(userRepository.findByEmail(joao2.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.save(joao)).thenReturn(joao);
+       when(userRepository.save(joao)).thenReturn(joao);
        User resultado = userService.updateUser(joao2, joao2.getId());
        assertEquals(joao2.getUsername(), resultado.getUsername());
     }
+    @Test
+    void deveLancarUmaExcecaoQuandoExistirUsernamesIguais(){
+        when(userRepository.findById(joao.getId())).thenReturn(Optional.of(joao));
+        when(userRepository.findByUsername(joao2.getUsername())).thenReturn(Optional.of(mateus));
+
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> { userService.updateUser(joao2,joao2.getId()); }
+        );
+        assertEquals("username já está em uso", thrown.getMessage());
     }
+    }
+
