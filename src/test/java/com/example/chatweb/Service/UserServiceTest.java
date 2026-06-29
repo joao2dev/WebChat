@@ -76,6 +76,37 @@ class UserServiceTest {
         );
         assertEquals("usuario não Encontrado", thrown.getMessage());
     }
+    @Test
+    void deveRetornarOUserQuandoEncontradoOUsername(){
+        when(userRepository.findByUsername(joao.getUsername())).thenReturn(Optional.of(joao));
+        User usernameEncontrado = userService.findByUsername(joao.getUsername());
+        assertEquals(joao, usernameEncontrado);
+    }
+    @Test
+    void deveLancarUmaExcecaoQuandoOUsernameNaoForEncontrado(){
+        when(userRepository.findByUsername(joao.getUsername())).thenReturn(Optional.empty());
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> { userService.findByUsername(joao.getUsername()); }
+        );
+        assertEquals("nao encontrado", thrown.getMessage());
+    }
+    @Test
+    void deveRetornarSucessoQuandoOUserForDeletado(){
+        when(userRepository.existsById(joao.getId())).thenReturn(true);
+        userService.deleteUserById(joao.getId());
+        verify(userRepository).deleteById(joao.getId());
+    }
+    @Test
+    void deveLancarUmaExcecaoQuandoOUserNaoForEncontrado(){
+        when(userRepository.existsById(joao.getId())).thenReturn(false);
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> { userService.deleteUserById(joao.getId());
+                }
+        );
+        assertEquals("usuario nao encontrado", thrown.getMessage());
+    }
     }
 
 
