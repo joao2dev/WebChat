@@ -2,7 +2,6 @@ package com.example.chatweb.Service;
 import static org.junit.jupiter.api.Assertions.*;
 import com.example.chatweb.entity.User;
 import com.example.chatweb.repositories.UserRepository;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
@@ -63,5 +61,21 @@ class UserServiceTest {
         );
         assertEquals("username já está em uso", thrown.getMessage());
     }
+    @Test
+    void deveRetornarUsuarioQuandoEncontrarPeloId(){
+        when(userRepository.findById(joao.getId())).thenReturn(Optional.of(joao));
+        User userEncontrado = userService.findById(joao.getId());
+        assertEquals(joao, userEncontrado);
     }
+    @Test
+    void deveLancarUmaExcecaoQuandoNaoEncontrarOId(){
+        when(userRepository.findById(joao.getId())).thenReturn(Optional.empty());
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> { userService.findById(joao.getId()); }
+        );
+        assertEquals("usuario não Encontrado", thrown.getMessage());
+    }
+    }
+
 
