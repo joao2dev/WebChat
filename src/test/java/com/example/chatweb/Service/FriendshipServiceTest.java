@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -78,5 +79,67 @@ class FriendshipServiceTest {
         assertEquals(joao, amizade.getRequester());
         assertEquals(maria, amizade.getAddressee());
         assertEquals(Friendship.FriendshipStatus.PENDING, amizade.getStatus());
+    }
+    @Test
+    void deveAceitarFriendshipComSuceso(){
+        Friendship pendente = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.PENDING,
+                LocalDateTime.now()
+        );
+        Friendship amizadeAceita = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.ACCEPTED,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.findById(pendente.getId())).thenReturn(Optional.of(pendente));
+        when(friendshipRepository.save(any())).thenReturn(amizadeAceita);
+
+        Friendship novaAmizade = friendshipService.acceptFriendRequest(pendente.getId());
+        assertEquals(Friendship.FriendshipStatus.ACCEPTED,novaAmizade.getStatus());
+    }
+    @Test
+    void deveLancarUmaExcecaoSeOIdNaoExistirNoBanco(){
+        Friendship pedido = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.PENDING,
+                LocalDateTime.now()
+        );
+
+        when(friendshipRepository.findById(pedido.getId())).thenReturn(Optional.empty());
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> {friendshipService.acceptFriendRequest(pedido.getId());
+                }
+        );
+        assertEquals("o usuario nao existe", thrown.getMessage());
+    }
+    @Test
+    void deveRecusarConviteComSucesso(){
+        Friendship pendente = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.PENDING,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.existsById(pendente.getId())).thenReturn(true);
+        friendshipService.declineFriendRequest(pendente.getId());
+        verify(friendshipRepository).deleteById(pendente.getId());
+
+    }
+    @Test
+    void deveLancarUmaExcecaoCasoOIdNaoExiste(){
+        Friendship pendente = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.PENDING,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.existsById(pendente.getId())).thenReturn(false);
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> {friendshipService.declineFriendRequest(pendente.getId());
+                }
+        );
+        assertEquals("usuario nao encontrado",thrown.getMessage());
+
     }
 }

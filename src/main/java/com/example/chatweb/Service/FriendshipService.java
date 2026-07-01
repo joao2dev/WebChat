@@ -39,9 +39,18 @@ public class FriendshipService {
         Friendship novaAmizade = new Friendship(UUID.randomUUID(),requester,addressee, Friendship.FriendshipStatus.PENDING, LocalDateTime.now());
         return repository.save(novaAmizade);
     }
-   /* Friendship acceptFriendRequest(UUID friendshipId){}              // aceitar
-    Friendship declineFriendRequest(UUID friendshipId)  {}           // recusar
-    void deleteFriendship(UUID friendshipId)  {}                     // deletar
+    Friendship acceptFriendRequest(UUID friendshipId){
+         Friendship novaAmizade = repository.findById(friendshipId).orElseThrow(() -> new RuntimeException("o usuario nao existe"));
+         novaAmizade.setStatus(Friendship.FriendshipStatus.ACCEPTED);
+         return repository.save(novaAmizade);
+    }
+    void declineFriendRequest(UUID friendshipId)  {
+        if (!repository.existsById(friendshipId)){
+            throw new RuntimeException("usuario nao encontrado");
+        }
+         repository.deleteById(friendshipId);
+    }           // recusar
+    /*void deleteFriendship(UUID friendshipId)  {}                     // deletar
     List<Friendship> getFriends(User user){}                        // listar amigos aceitos
     List<Friendship> getPendingRequests(User user)   {}   */          // listar pedidos pendentes recebidos
 }
