@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -50,7 +52,19 @@ public class FriendshipService {
         }
          repository.deleteById(friendshipId);
     }           // recusar
-    /*void deleteFriendship(UUID friendshipId)  {}                     // deletar
-    List<Friendship> getFriends(User user){}                        // listar amigos aceitos
-    List<Friendship> getPendingRequests(User user)   {}   */          // listar pedidos pendentes recebidos
+    void deleteFriendship(UUID friendshipId)  {
+        if (!repository.existsById(friendshipId)){
+            throw new RuntimeException("usuario nao encontrado");
+        }
+        repository.deleteById(friendshipId);
+    }
+    List<Friendship> getFriends(User user){
+        List<Friendship> addresseeList = repository.findByAddresseeAndStatus(user, Friendship.FriendshipStatus.ACCEPTED);
+        List<Friendship> requesterList = repository.findByRequesterAndStatus(user, Friendship.FriendshipStatus.ACCEPTED);
+        return Stream.concat(requesterList.stream(),addresseeList.stream()).collect(Collectors.toList());
+    }
+     List<Friendship> getPendingRequests(User user) {
+        return repository.findByAddresseeAndStatus(user, Friendship.FriendshipStatus.PENDING);
+
+     }
 }

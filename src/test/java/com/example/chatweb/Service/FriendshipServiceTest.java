@@ -3,7 +3,7 @@ package com.example.chatweb.Service;
 import com.example.chatweb.entity.Friendship;
 import com.example.chatweb.entity.User;
 import com.example.chatweb.repositories.FriendshipRepository;
-import com.example.chatweb.repositories.UserRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,18 +27,17 @@ class FriendshipServiceTest {
 
     private User joao;
     private User maria;
+    private User mateus;
 
     @BeforeEach
     public void setup(){
         this.joao = new User(UUID.randomUUID(), "joao2dev", "joao@gmail.com", "12345");
         this.maria = new User(UUID.randomUUID(), "maria", "maria@gmail.com", "12345");
+        this.mateus = new User(UUID.randomUUID(), "mateus", "mateus@gmail.com", "12345");
     }
 
     @Mock
     private FriendshipRepository friendshipRepository;
-
-    @Mock
-    private UserRepository userRepository;
 
     @InjectMocks
     private FriendshipService friendshipService;
@@ -141,5 +141,57 @@ class FriendshipServiceTest {
         );
         assertEquals("usuario nao encontrado",thrown.getMessage());
 
+    }
+    @Test
+    void deveTerSucessoAoDeletarFriendship(){
+        Friendship amizade = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.ACCEPTED,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.existsById(amizade.getId())).thenReturn(true);
+        friendshipService.deleteFriendship(amizade.getId());
+        verify(friendshipRepository).deleteById(amizade.getId());
+    }
+    @Test
+    void deveLancarExecacaoQuandoNaoEncontrarIdDaAmizade(){
+        Friendship amizade = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.ACCEPTED,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.existsById(amizade.getId())).thenReturn(false);
+        RuntimeException thrown = assertThrows(
+                RuntimeException.class,
+                () -> {friendshipService.deleteFriendship(amizade.getId());
+                }
+        );
+        assertEquals("usuario nao encontrado", thrown.getMessage());
+    }
+    @Test
+    void deveTerSucessoAoMostrarAListaDeAmigos(){
+        Friendship joaoParaMaria = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.ACCEPTED, LocalDateTime.now()
+        );
+        Friendship mateusParaJoao = new Friendship(
+                UUID.randomUUID(), mateus, joao,
+                Friendship.FriendshipStatus.ACCEPTED, LocalDateTime.now()
+        );
+        when(friendshipRepository.findByRequesterAndStatus(joao, Friendship.FriendshipStatus.ACCEPTED)).thenReturn(List.of(joaoParaMaria));
+        when(friendshipRepository.findByAddresseeAndStatus(joao, Friendship.FriendshipStatus.ACCEPTED)).thenReturn(List.of(mateusParaJoao));
+        List<Friendship> listaDeAmigos = friendshipService.getFriends(joao);
+        assertEquals(2,listaDeAmigos.size());
+    }
+    @Test
+    void deveTerSucessoAoMostrarAlistadePedidosPendentes(){
+        Friendship pedido = new Friendship(
+                UUID.randomUUID(), joao, maria,
+                Friendship.FriendshipStatus.PENDING,
+                LocalDateTime.now()
+        );
+        when(friendshipRepository.findByAddresseeAndStatus(joao, Friendship.FriendshipStatus.PENDING)).thenReturn(List.of(pedido));
+        List<Friendship> pedidosPendentes = friendshipService.getPendingRequests(joao);
+        assertEquals(1,pedidosPendentes.size());
     }
 }

@@ -13,5 +13,5 @@ public interface FriendshipRepository extends JpaRepository<Friendship, UUID> {
     List<Friendship> findByAddressee(User addressee);
     Optional<Friendship> findByRequesterAndAddressee(User requester, User addressee);
     List<Friendship> findByAddresseeAndStatus(User addressee, Friendship.FriendshipStatus status);
-
+    List<Friendship> findByRequesterAndStatus(User requester, Friendship.FriendshipStatus status);
 }
