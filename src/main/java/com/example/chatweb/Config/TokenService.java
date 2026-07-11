@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -24,17 +25,18 @@ public class TokenService {
                 .sign(algorithm);
 
     }
-    public String validateToken(String token){
+    public Optional<JWTUserData> validateToken(String token){
         try{
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            return JWT.require(algorithm)
+            String username = JWT.require(algorithm)
                     .withIssuer("chatweb")
                     .build()
                     .verify(token)
                     .getSubject();
+            return Optional.of(new JWTUserData(username));
         }catch (JWTVerificationException exception){
-            return "";
-
+            return Optional.empty();
         }
     }
-}
+    }
+
