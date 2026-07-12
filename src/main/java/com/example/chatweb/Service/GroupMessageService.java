@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,14 +17,14 @@ public class GroupMessageService {
 
     private final GroupMessageRepository repository;
 
-    GroupMessage createMessage(User sender, Group group, String content){
+   public GroupMessage createMessage(User sender, Group group, String content) {
         if ( content == null || content.isBlank() ){
             throw new RuntimeException("adicione conteudo a mensagem");
         }
         GroupMessage newMessage = new GroupMessage(UUID.randomUUID(),content,sender,group,LocalDateTime.now() ,null);
         return repository.save(newMessage);
     }
-    GroupMessage updateMessage(UUID id, String content, User requester){
+   public GroupMessage updateMessage(UUID id, String content, User requester) {
         GroupMessage mensagemEncontrada = repository.findById(id).orElseThrow(() -> new RuntimeException("mensagem nao encontrada"));
         if (!mensagemEncontrada.getSender().getId().equals(requester.getId())){
             throw new RuntimeException("voce nao pode editar essa mensagem");
@@ -33,14 +32,14 @@ public class GroupMessageService {
         mensagemEncontrada.setContent(content);
         return repository.save(mensagemEncontrada);
     }
-    void deleteMessage(UUID id, User requester){
+   public void deleteMessage(UUID id, User requester) {
         GroupMessage mensagemEncontrada = repository.findById(id).orElseThrow(() -> new RuntimeException("mensagem nao encontrada"));
         if (!mensagemEncontrada.getSender().getId().equals(requester.getId())){
             throw new RuntimeException("voce nao pode apagar essa mensagem");
         }
         repository.deleteById(mensagemEncontrada.getId());
     }
-    List<GroupMessage> findByGroup(Group group){
+   public List<GroupMessage> findByGroup(Group group){
         return repository.findByGroupOrderBySentAtAsc(group);
     }
 }

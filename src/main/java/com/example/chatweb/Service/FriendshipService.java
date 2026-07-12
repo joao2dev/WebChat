@@ -3,10 +3,7 @@ package com.example.chatweb.Service;
 import com.example.chatweb.entity.Friendship;
 import com.example.chatweb.entity.User;
 import com.example.chatweb.repositories.FriendshipRepository;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,13 +15,10 @@ import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
 public class FriendshipService {
-    private FriendshipRepository repository;
+    private final FriendshipRepository repository;
 
-    Friendship sendFriendRequest(User requester, User addressee){
+    public Friendship sendFriendRequest(User requester, User addressee){
 
         if (requester.getId().equals(addressee.getId())){
             throw new RuntimeException("Voce não pode enivar um convite a si mesmo");
@@ -41,29 +35,29 @@ public class FriendshipService {
         Friendship novaAmizade = new Friendship(UUID.randomUUID(),requester,addressee, Friendship.FriendshipStatus.PENDING, LocalDateTime.now());
         return repository.save(novaAmizade);
     }
-    Friendship acceptFriendRequest(UUID friendshipId){
+    public Friendship acceptFriendRequest(UUID friendshipId){
          Friendship novaAmizade = repository.findById(friendshipId).orElseThrow(() -> new RuntimeException("o usuario nao existe"));
          novaAmizade.setStatus(Friendship.FriendshipStatus.ACCEPTED);
          return repository.save(novaAmizade);
     }
-    void declineFriendRequest(UUID friendshipId)  {
+    public void declineFriendRequest(UUID friendshipId)  {
         if (!repository.existsById(friendshipId)){
             throw new RuntimeException("usuario nao encontrado");
         }
          repository.deleteById(friendshipId);
     }           // recusar
-    void deleteFriendship(UUID friendshipId)  {
+    public void deleteFriendship(UUID friendshipId)  {
         if (!repository.existsById(friendshipId)){
             throw new RuntimeException("usuario nao encontrado");
         }
         repository.deleteById(friendshipId);
     }
-    List<Friendship> getFriends(User user){
+    public List<Friendship> getFriends(User user){
         List<Friendship> addresseeList = repository.findByAddresseeAndStatus(user, Friendship.FriendshipStatus.ACCEPTED);
         List<Friendship> requesterList = repository.findByRequesterAndStatus(user, Friendship.FriendshipStatus.ACCEPTED);
         return Stream.concat(requesterList.stream(),addresseeList.stream()).collect(Collectors.toList());
     }
-     List<Friendship> getPendingRequests(User user) {
+    public List<Friendship> getPendingRequests(User user) {
         return repository.findByAddresseeAndStatus(user, Friendship.FriendshipStatus.PENDING);
 
      }

@@ -14,14 +14,14 @@ public class DirectMessageService {
 
     private final DirectMessageRepository repository;
 
-    DirectMessage createMessage(User sender, Conversation conversation, String content){
+    public DirectMessage createMessage(User sender, Conversation conversation, String content){
         if ( content == null || content.isBlank() ){
             throw new RuntimeException("adicione conteudo a mensagem");
         }
         DirectMessage newMessage = new DirectMessage(UUID.randomUUID(),content,sender,conversation, LocalDateTime.now() ,null);
         return repository.save(newMessage);
     }
-    DirectMessage updateMessage(UUID id, String content, User requester){
+    public DirectMessage updateMessage(UUID id, String content, User requester){
         DirectMessage mensagemEncontrada = repository.findById(id).orElseThrow(() -> new RuntimeException("mensagem nao encontrada"));
         if (!mensagemEncontrada.getSender().getId().equals(requester.getId())){
             throw new RuntimeException("voce nao pode editar essa mensagem");
@@ -29,14 +29,14 @@ public class DirectMessageService {
         mensagemEncontrada.setContent(content);
         return repository.save(mensagemEncontrada);
     }
-    void deleteMessage(UUID id, User requester){
+    public void deleteMessage(UUID id, User requester){
         DirectMessage mensagemEncontrada = repository.findById(id).orElseThrow(() -> new RuntimeException("mensagem nao encontrada"));
         if (!mensagemEncontrada.getSender().getId().equals(requester.getId())){
             throw new RuntimeException("voce nao pode apagar essa mensagem");
         }
         repository.deleteById(mensagemEncontrada.getId());
     }
-    List<DirectMessage> findByConversation(Conversation conversation){
+    public List<DirectMessage> findByConversation(Conversation conversation){
         return repository.findByConversationOrderBySentAtAsc(conversation);
     }
 }
