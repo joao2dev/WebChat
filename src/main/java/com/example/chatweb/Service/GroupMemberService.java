@@ -27,8 +27,6 @@ public class GroupMemberService {
         GroupMember newMember = new GroupMember(UUID.randomUUID(),user,group, LocalDateTime.now());
         return repository.save(newMember);
     }
-
-
     public void removeMember(GroupMember member, User requester){
         if (!repository.existsByUserAndGroup(member.getUser(),member.getGroup())){
             throw new RuntimeException("esse membro nao existe");

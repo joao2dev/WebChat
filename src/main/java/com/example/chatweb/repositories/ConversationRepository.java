@@ -1,6 +1,7 @@
 package com.example.chatweb.repositories;
 
 import com.example.chatweb.entity.Conversation;
+import com.example.chatweb.entity.DirectMessage;
 import com.example.chatweb.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
