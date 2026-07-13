@@ -4,6 +4,7 @@ import com.example.chatweb.Config.JWTUserData;
 import com.example.chatweb.Config.TokenService;
 import com.example.chatweb.entity.User;
 import com.example.chatweb.repositories.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -14,6 +15,7 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -29,10 +31,19 @@ public class ChatChannelInterceptor implements ChannelInterceptor {
                 .getAccessor(message, StompHeaderAccessor.class);
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-            // extrai o token do header da mensagem STOMP
-            String token = accessor.getFirstNativeHeader("Authorization");
-            if (token != null && token.startsWith("Bearer ")) {
-                token = token.substring(7);
+            String token = null;
+            Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+            if (sessionAttributes != null) {
+                HttpServletRequest request = (HttpServletRequest) sessionAttributes
+                        .get(HttpServletRequest.class.getName());
+                if (request != null && request.getCookies() != null) {
+                    for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                        if ("jwt".equals(cookie.getName())) {
+                            token = cookie.getValue();
+                            break;
+                        }
+                    }
+                }
             }
             Optional<JWTUserData> user = tokenService.validateToken(token);
             if (user.isEmpty()){
