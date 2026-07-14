@@ -28,8 +28,10 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = extractToken(request);
+        System.out.println("PATH: " + request.getServletPath() + " | TOKEN: " + token);
         if (token != null){
             Optional<JWTUserData> username = tokenService.validateToken(token);
+            System.out.println("USERNAME: " + username);
             if (username.isPresent()){
                 User user = userRepository.findByUsername(username.get().username())
                         .orElseThrow(() -> new RuntimeException("usuario nao encontrado"));
@@ -37,9 +39,17 @@ public class SecurityFilter extends OncePerRequestFilter {
                         user, null, user.getAuthorities()
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+                System.out.println("AUTHENTICATION: " + SecurityContextHolder.getContext().getAuthentication());
             }
         }
         filterChain.doFilter(request, response);
+    }
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.equals("/auth/login")
+                || path.equals("/auth/registrar")
+                || path.startsWith("/ws"); // adiciona essa linha
     }
     private String extractToken(HttpServletRequest request) {
         if (request.getCookies() == null) {

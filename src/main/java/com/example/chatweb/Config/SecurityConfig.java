@@ -37,9 +37,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/registrar").permitAll()
                         .requestMatchers(HttpMethod.GET,"/auth/registrar").permitAll()
+                        .requestMatchers("/ws").permitAll()
+                        .requestMatchers("/ws/**").permitAll()
                         .anyRequest().authenticated()
                 ).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
-                return http.build();
+        return http.build();
     }
     @Bean
     public PasswordEncoder passwordEncoder(){
@@ -62,7 +64,6 @@ public class SecurityConfig {
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         return source;

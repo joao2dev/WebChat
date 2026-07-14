@@ -17,6 +17,7 @@ import org.springframework.web.socket.server.support.HttpSessionHandshakeInterce
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final ChatChannelInterceptor chatChannelInterceptor;
+    private final CookieHandshakeInterceptor cookieHandshakeInterceptor;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config){
@@ -26,8 +27,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry url){
         url.addEndpoint("/ws")
-                .addInterceptors(new HttpSessionHandshakeInterceptor())
-                .withSockJS();
+                .setAllowedOrigins("http://localhost:5173")
+                .addInterceptors(cookieHandshakeInterceptor);
     }
 
     @Override

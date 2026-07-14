@@ -32,7 +32,7 @@ public class FriendshipService {
             throw new RuntimeException("usuario ja adicionado");
         }
 
-        Friendship novaAmizade = new Friendship(UUID.randomUUID(),requester,addressee, Friendship.FriendshipStatus.PENDING, LocalDateTime.now());
+        Friendship novaAmizade = new Friendship(null,requester,addressee, Friendship.FriendshipStatus.PENDING, LocalDateTime.now());
         return repository.save(novaAmizade);
     }
     public Friendship acceptFriendRequest(UUID friendshipId){

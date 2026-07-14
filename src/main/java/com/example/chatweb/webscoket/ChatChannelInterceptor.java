@@ -6,6 +6,7 @@ import com.example.chatweb.entity.User;
 import com.example.chatweb.repositories.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -17,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Optional;
-
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ChatChannelInterceptor implements ChannelInterceptor {
@@ -31,27 +32,23 @@ public class ChatChannelInterceptor implements ChannelInterceptor {
                 .getAccessor(message, StompHeaderAccessor.class);
 
         if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+            log.info("SESSION ATTRIBUTES: {}", accessor.getSessionAttributes());
+
             String token = null;
             Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
             if (sessionAttributes != null) {
-                HttpServletRequest request = (HttpServletRequest) sessionAttributes
-                        .get(HttpServletRequest.class.getName());
-                if (request != null && request.getCookies() != null) {
-                    for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
-                        if ("jwt".equals(cookie.getName())) {
-                            token = cookie.getValue();
-                            break;
-                        }
-                    }
-                }
+                token = (String) sessionAttributes.get("jwt");
             }
+
             Optional<JWTUserData> user = tokenService.validateToken(token);
             if (user.isEmpty()){
                 throw new RuntimeException("token invalido");
             }
             User authenticated = userRepository.findByUsername(user.get().username())
                     .orElseThrow(() -> new RuntimeException("usuario nao encontrado"));
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(authenticated,null,authenticated.getAuthorities());
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    authenticated, null, authenticated.getAuthorities()
+            );
             accessor.setUser(authenticationToken);
         }
         return message;

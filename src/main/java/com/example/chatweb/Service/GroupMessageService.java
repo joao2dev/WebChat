@@ -21,7 +21,7 @@ public class GroupMessageService {
         if ( content == null || content.isBlank() ){
             throw new RuntimeException("adicione conteudo a mensagem");
         }
-        GroupMessage newMessage = new GroupMessage(UUID.randomUUID(),content,sender,group,LocalDateTime.now() ,null);
+        GroupMessage newMessage = new GroupMessage(null,content,sender,group,LocalDateTime.now() ,null);
         return repository.save(newMessage);
     }
    public GroupMessage updateMessage(UUID id, String content, User requester) {

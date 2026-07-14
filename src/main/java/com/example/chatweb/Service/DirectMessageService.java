@@ -18,7 +18,7 @@ public class DirectMessageService {
         if ( content == null || content.isBlank() ){
             throw new RuntimeException("adicione conteudo a mensagem");
         }
-        DirectMessage newMessage = new DirectMessage(UUID.randomUUID(),content,sender,conversation, LocalDateTime.now() ,null);
+        DirectMessage newMessage = new DirectMessage(null,content,sender,conversation, LocalDateTime.now() ,null);
         return repository.save(newMessage);
     }
     public DirectMessage updateMessage(UUID id, String content, User requester){

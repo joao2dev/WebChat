@@ -22,11 +22,11 @@ public class ConversationController {
     private final UserService userService;
 
     @PostMapping("/iniciar")
-    public ResponseEntity<?> startConversation(@AuthenticationPrincipal User userA , @RequestBody ConversationRequest request){
+    public ResponseEntity<?> startConversation(@AuthenticationPrincipal User userA , @RequestBody ConversationRequest request) {
         User userB = userService.findByUsername(request.nameUserB());
-        service.createConversation(userA,userB);
+        service.createConversation(userA, userB);
         return ResponseEntity.ok("conversa iniciada");
-
+    }
     @GetMapping("/encontrar/{id}")
     public ResponseEntity<?> findConversation(@AuthenticationPrincipal User userA , @PathVariable UUID id){
         User userB = userService.findById(id);
